@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
-from typing import TypeVar, Generic
+from typing import Any, TypeVar, Generic
 
 
-T = TypeVar("T")
+T = TypeVar("T", bound=Any)
 
 
 @dataclass(frozen=True)
