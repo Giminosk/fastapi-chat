@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
 
-@dataclass
+@dataclass(eq=False)
 class BaseAppException(Exception):
-    @property
-    def message(self):
-        return "Application error occurred"
+    def __init__(self, message):
+        self.message = message
+        super().__init__(message)

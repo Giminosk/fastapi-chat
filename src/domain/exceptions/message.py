@@ -3,15 +3,13 @@ from dataclasses import dataclass
 from domain.exceptions.base import BaseAppException
 
 
-@dataclass
+@dataclass(eq=False)
 class EmptyMessageException(BaseAppException):
-    @property
-    def message(self):
-        return "Message cannot be empty"
+    def __init__(self):
+        super().__init__("Message cannot be empty")
 
 
-@dataclass
+@dataclass(eq=False)
 class TooLongMessageException(BaseAppException):
-    @property
-    def message(self):
-        return "Message cannot be longer than 1000 characters"
+    def __init__(self):
+        super().__init__("Message cannot be longer than 1000 characters")
