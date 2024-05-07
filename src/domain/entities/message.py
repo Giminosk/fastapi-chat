@@ -7,8 +7,3 @@ from domain.values.message import Text
 @dataclass(eq=False)
 class Message(BaseEntity):
     text: Text
-    
-
-@dataclass(eq=False)
-class Chat(BaseEntity):
-    pass
