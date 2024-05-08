@@ -5,9 +5,11 @@ import pytest
 from domain.entities.chat import Chat
 from domain.entities.message import Message
 from domain.events.chat import ChatCreatedEvent, NewMessageReceivedEvent
-from domain.exceptions.chat import (EmptyTitleException,
-                                    TitleStrartsWithNoCapital,
-                                    TooLongTitleException)
+from domain.exceptions.chat import (
+    EmptyTitleException,
+    TitleStrartsWithNoCapital,
+    TooLongTitleException,
+)
 from domain.values.chat import Title
 from domain.values.message import Text
 
@@ -29,7 +31,7 @@ def test_create_title_too_long():
         Title("A" * 101)
 
 
-def test_create_title_strarts_with_no_capital():
+def test_create_title_starts_with_no_capital():
     with pytest.raises(TitleStrartsWithNoCapital):
         Title("title")
 
@@ -61,7 +63,7 @@ def test_chat_message_events():
 
     events = chat.pull_events()
 
-    assert not chat.pull_events()
+    assert len(chat.pull_events()) == 0
     assert len(events) == 2
 
     first = events[0]

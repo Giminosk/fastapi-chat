@@ -5,8 +5,10 @@ from dataclasses import dataclass, field
 from domain.events.base import BaseEvent
 from logic.commands.base import CR, CT, BaseCommand, CommandHandler
 from logic.events.base import ER, ET, EventHandler
-from logic.exceptions.mediator import (CommandHandlersNotRegisteredException,
-                                       EventHandlersNotRegisteredException)
+from logic.exceptions.mediator import (
+    CommandHandlersNotRegisteredException,
+    EventHandlersNotRegisteredException,
+)
 
 
 @dataclass(eq=False)
@@ -18,12 +20,12 @@ class Mediator:
         default_factory=lambda: defaultdict(list)
     )
 
-    def register_event_handler(
+    def register_event_handlers(
         self, event_type: ET, handlers: Iterable[EventHandler]
     ) -> None:
         self.events_map[event_type].extend(handlers)
 
-    def register_command_handler(
+    def register_command_handlers(
         self, command_type: CT, handlers: Iterable[CommandHandler]
     ) -> None:
         self.commands_map[command_type].extend(handlers)

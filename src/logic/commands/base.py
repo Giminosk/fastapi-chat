@@ -13,7 +13,7 @@ CR = TypeVar("CR", bound=Any)  # Command result
 
 
 @dataclass
-class CommandHandler(ABC, Generic[CT, CR]):
+class BaseCommandHandler(ABC, Generic[CT, CR]):
     @abstractmethod
     async def handle(self, command: CT) -> CR:
         pass
