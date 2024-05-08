@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 
-from domain.exceptions.chat import EmptyTitleException, TooLongTitleException, TitleStrartsWithNoCapital
+from domain.exceptions.chat import (EmptyTitleException,
+                                    TitleStrartsWithNoCapital,
+                                    TooLongTitleException)
 from domain.values.base import BaseValue
 
 

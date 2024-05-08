@@ -1,6 +1,6 @@
-import copy
-from dataclasses import dataclass, field
 from abc import ABC
+from copy import copy
+from dataclasses import dataclass, field
 from datetime import datetime
 from uuid import uuid4
 

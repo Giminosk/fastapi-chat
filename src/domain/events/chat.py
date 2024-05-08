@@ -4,13 +4,13 @@ from domain.events.base import BaseEvent
 
 
 @dataclass
-class ChatCreated(BaseEvent):
+class ChatCreatedEvent(BaseEvent):
     chat_oid: str
     title: str
-    
+
 
 @dataclass
-class NewMessageReceived(BaseEvent):
+class NewMessageReceivedEvent(BaseEvent):
     chat_oid: str
     message_oid: str
     message_text: str
