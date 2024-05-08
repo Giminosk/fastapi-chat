@@ -3,7 +3,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field
 
 from domain.events.base import BaseEvent
-from logic.commands.base import CR, CT, BaseCommand, CommandHandler
+from logic.commands.base import CR, CT, BaseCommand, BaseCommandHandler
 from logic.events.base import ER, ET, EventHandler
 from logic.exceptions.mediator import (
     CommandHandlersNotRegisteredException,
@@ -16,7 +16,7 @@ class Mediator:
     events_map: dict[ET : list[EventHandler]] = field(
         default_factory=lambda: defaultdict(list)
     )
-    commands_map: dict[CT : list[CommandHandler]] = field(
+    commands_map: dict[CT : list[BaseCommandHandler]] = field(
         default_factory=lambda: defaultdict(list)
     )
 
@@ -26,7 +26,7 @@ class Mediator:
         self.events_map[event_type].extend(handlers)
 
     def register_command_handlers(
-        self, command_type: CT, handlers: Iterable[CommandHandler]
+        self, command_type: CT, handlers: Iterable[BaseCommandHandler]
     ) -> None:
         self.commands_map[command_type].extend(handlers)
 

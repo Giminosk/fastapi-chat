@@ -15,10 +15,10 @@ from domain.values.message import Text
 
 
 def test_create_title_success():
-    title = Title("Hello")
+    title = Title("Title")
 
-    assert title.value == "Hello"
-    assert title.as_generic_type() == "Hello"
+    assert title.value == "Title"
+    assert title.as_generic_type() == "Title"
 
 
 def test_create_title_empty():
@@ -37,7 +37,7 @@ def test_create_title_starts_with_no_capital():
 
 
 def test_create_chat_sucess():
-    title = Title("Hello")
+    title = Title("Title")
     chat = Chat.create_chat(title=title)
 
     assert chat.title == title
@@ -46,7 +46,7 @@ def test_create_chat_sucess():
 
 
 def test_add_message_to_chat():
-    chat = Chat.create_chat(Title("Hello"))
+    chat = Chat.create_chat(Title("Title"))
     message = Message(Text("hello"))
 
     chat.add_message(message)
@@ -56,7 +56,7 @@ def test_add_message_to_chat():
 
 
 def test_chat_message_events():
-    chat = Chat.create_chat(Title("Hello"))
+    chat = Chat.create_chat(Title("Title"))
     message = Message(Text("hello"))
 
     chat.add_message(message)
