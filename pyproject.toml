@@ -11,6 +11,7 @@ fastapi = {extras = ["all"], version = "^0.111.0"}
 pytest = "^8.2.0"
 pytest-asyncio = "^0.23.6"
 ruff = "^0.4.3"
+punq = "^0.7.0"
 
 
 [build-system]

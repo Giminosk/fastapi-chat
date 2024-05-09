@@ -5,10 +5,8 @@ from dataclasses import dataclass, field
 from domain.events.base import BaseEvent
 from logic.commands.base import CR, CT, BaseCommand, BaseCommandHandler
 from logic.events.base import ER, ET, EventHandler
-from logic.exceptions.mediator import (
-    CommandHandlersNotRegisteredException,
-    EventHandlersNotRegisteredException,
-)
+from logic.exceptions.mediator import (CommandHandlersNotRegisteredException,
+                                       EventHandlersNotRegisteredException)
 
 
 @dataclass(eq=False)

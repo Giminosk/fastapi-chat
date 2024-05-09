@@ -9,6 +9,5 @@ class EventHandlersNotRegisteredException(LogicException):
 
 
 class CommandHandlersNotRegisteredException(LogicException):
-
     def __init__(self, command_type: type):
         super().__init__(f"Could not find command handlers for {command_type}")
