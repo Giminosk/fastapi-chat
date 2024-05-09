@@ -26,3 +26,6 @@ def init_container() -> punq.Container:
     container.register(Mediator, factory=_init_mediator)
 
     return container
+
+
+container = init_container()
