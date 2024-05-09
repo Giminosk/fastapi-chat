@@ -1,4 +1,4 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from fastapi.routing import APIRouter
 
 from app.api.v1.chats.schemas import (CreateChatRequestHandler,
@@ -11,8 +11,14 @@ from settings.init_container import container
 router = APIRouter(tags=["Chat"])
 
 
-@router.post("/create", response_model=CreateChatResponseHandler)
-async def create_chat(schema: CreateChatRequestHandler) -> CreateChatResponseHandler:
+@router.post(
+    "/create",
+    response_model=CreateChatResponseHandler,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_chat_handler(
+    schema: CreateChatRequestHandler,
+) -> CreateChatResponseHandler:
     mediator = container.resolve(Mediator)
     command = CreateChatCommand(schema.title)
     try:

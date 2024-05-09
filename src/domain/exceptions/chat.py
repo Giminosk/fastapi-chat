@@ -13,4 +13,4 @@ class TooLongTitleException(BaseAppException):
 
 class TitleStrartsWithNoCapital(BaseAppException):
     def __init__(self):
-        super().__init__("Title should start with capital letter")
+        super().__init__("Title must start with a capital letter")
