@@ -4,7 +4,8 @@ from functools import lru_cache
 import punq
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from logic.commands.chat import CreateChatCommand, CreateChatCommandHandler
+from logic.commands.chat import (CreateChatCommand, CreateChatCommandHandler,
+                                 GetChatCommand, GetChatCommandHandler)
 from logic.commands.message import (CreateMessageCommand,
                                     CreateMessageCommandHandler)
 from logic.mediator import Mediator
@@ -23,12 +24,11 @@ def init_container() -> punq.Container:
 def _init_container() -> punq.Container:
     container = punq.Container()
 
+    # * Config
     container.register(DBConfig, factory=lambda: DBConfig(), scope=punq.Scope.singleton)
     config = container.resolve(DBConfig)
 
-    container.register(CreateChatCommandHandler)
-    container.register(CreateMessageCommandHandler)
-
+    # * Client
     def _init_mongo_client():
         return AsyncIOMotorClient(config.mongo_uri, serverSelectionTimeoutMS=5000)
 
@@ -37,6 +37,7 @@ def _init_container() -> punq.Container:
     )
     client = container.resolve(AsyncIOMotorClient)
 
+    # * Repositories
     def _init_chat_repository() -> BaseChatRepository:
         if os.getenv("APP_ENV") == "test":
             return MemoryChatRepository()
@@ -57,16 +58,6 @@ def _init_container() -> punq.Container:
                 config.mongo_collection,
             )
 
-    def _init_mediator() -> Mediator:
-        mediator = Mediator()
-        mediator.register_command_handlers(
-            CreateChatCommand, [container.resolve(CreateChatCommandHandler)]
-        )
-        mediator.register_command_handlers(
-            CreateMessageCommand, [container.resolve(CreateMessageCommandHandler)]
-        )
-        return mediator
-
     container.register(
         BaseChatRepository, factory=_init_chat_repository, scope=punq.Scope.singleton
     )
@@ -75,6 +66,25 @@ def _init_container() -> punq.Container:
         factory=_init_message_repository,
         scope=punq.Scope.singleton,
     )
+
+    # * Handlers
+    container.register(CreateChatCommandHandler)
+    container.register(CreateMessageCommandHandler)
+    container.register(GetChatCommandHandler)
+
+    # * Mediator
+    def _init_mediator() -> Mediator:
+        mediator = Mediator()
+        mediator.register_command_handlers(
+            CreateChatCommand, [container.resolve(CreateChatCommandHandler)]
+        )
+        mediator.register_command_handlers(
+            CreateMessageCommand, [container.resolve(CreateMessageCommandHandler)]
+        )
+        mediator.register_command_handlers(
+            GetChatCommand, [container.resolve(GetChatCommandHandler)]
+        )
+        return mediator
 
     container.register(Mediator, factory=_init_mediator)
 

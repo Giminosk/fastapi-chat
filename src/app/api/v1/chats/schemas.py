@@ -1,20 +1,36 @@
+import datetime
+
 from pydantic import BaseModel
 
 
-class CreateChatRequestHandler(BaseModel):
+class CreateChatRequestSchema(BaseModel):
     title: str
 
 
-class CreateChatResponseHandler(BaseModel):
+class CreateChatResponseSchema(BaseModel):
     chat_oid: str
     title: str
 
 
-class CreateMessageRequestHandler(BaseModel):
+class CreateMessageRequestSchema(BaseModel):
     text: str
 
 
-class CreateMessageResponseHandler(BaseModel):
+class CreateMessageResponseSchema(BaseModel):
     chat_oid: str
     message_oid: str
     text: str
+
+
+class GetMessageSchema(BaseModel):
+    message_oid: str
+    text: str
+    created_at: datetime.datetime
+    chat_oid: str
+
+
+class GetChatSchema(BaseModel):
+    chat_oid: str
+    title: str
+    created_at: datetime.datetime
+    messages: list[GetMessageSchema]
