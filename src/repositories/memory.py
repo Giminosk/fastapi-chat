@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 
 from domain.entities.chat import Chat
-from repositories.base import BaseChatRepository
+from repositories.mongo.base import BaseChatRepository
 
 
 @dataclass
