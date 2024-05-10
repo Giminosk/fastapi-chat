@@ -1,14 +1,22 @@
+import os
+
 import punq
 from pytest import fixture
 
 from logic.mediator import Mediator
 from repositories.base import BaseChatRepository
-from settings.init_container import init_container
+from repositories.memory import MemoryChatRepository
+from settings.init_container import _init_container
+
+os.environ["APP_ENV"] = "test"
 
 
 @fixture(scope="function")
 def container() -> punq.Container:
-    container = init_container()
+    container = _init_container()
+    container.register(
+        BaseChatRepository, MemoryChatRepository, scope=punq.Scope.singleton
+    )
     return container
 
 

@@ -10,6 +10,11 @@ services:
       - mongo_volume:/data/db
     networks:
       - backend
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   mongo-express:
     image: mongo-express
@@ -26,6 +31,23 @@ services:
       - mongodb
     networks:
       - backend
+
+  main-app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: main-app
+    ports:
+      - "${API_PORT}:8000"
+    command: "uvicorn --factory app.main:create_app --reload --host 0.0.0.0 --port 8000"
+    env_file:
+      - ../.env
+    volumes:
+      - ../src/:/src/
+    networks:
+      - backend
+    depends_on:
+      - mongodb
 
 volumes:
   mongo_volume:

@@ -1,4 +1,5 @@
-from fastapi import HTTPException, status
+import punq
+from fastapi import Depends, HTTPException, status
 from fastapi.routing import APIRouter
 
 from app.api.v1.chats.schemas import (CreateChatRequestHandler,
@@ -6,7 +7,7 @@ from app.api.v1.chats.schemas import (CreateChatRequestHandler,
 from domain.exceptions.base import BaseAppException
 from logic.commands.chat import CreateChatCommand
 from logic.mediator import Mediator
-from settings.init_container import container
+from settings.init_container import init_container
 
 router = APIRouter(tags=["Chat"])
 
@@ -18,6 +19,7 @@ router = APIRouter(tags=["Chat"])
 )
 async def create_chat_handler(
     schema: CreateChatRequestHandler,
+    container: punq.Container = Depends(init_container),
 ) -> CreateChatResponseHandler:
     mediator = container.resolve(Mediator)
     command = CreateChatCommand(schema.title)
