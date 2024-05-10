@@ -15,6 +15,7 @@ class Chat(BaseEntity):
     )
 
     def add_message(self, message: Message) -> None:
+        message.chat_oid = self.oid
         self.messages.append(message)
         self.add_event(
             NewMessageReceivedEvent(

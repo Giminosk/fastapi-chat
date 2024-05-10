@@ -5,10 +5,13 @@ import punq
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from logic.commands.chat import CreateChatCommand, CreateChatCommandHandler
+from logic.commands.message import (CreateMessageCommand,
+                                    CreateMessageCommandHandler)
 from logic.mediator import Mediator
-from repositories.base import BaseChatRepository
+from repositories.base import BaseChatRepository, BaseMessageRepository
 from repositories.memory import MemoryChatRepository
-from repositories.mongo import MongoChatRepository
+from repositories.mongo.chat import MongoChatRepository
+from repositories.mongo.message import MongoMessageRepository
 from settings.dbconfig import DBConfig
 
 
@@ -19,16 +22,37 @@ def init_container() -> punq.Container:
 
 def _init_container() -> punq.Container:
     container = punq.Container()
-    container.register(DBConfig, factory=lambda: DBConfig(), scope=punq.Scope.singleton)
-    container.register(CreateChatCommandHandler)
 
-    def _init_repository() -> BaseChatRepository:
+    container.register(DBConfig, factory=lambda: DBConfig(), scope=punq.Scope.singleton)
+    config = container.resolve(DBConfig)
+
+    container.register(CreateChatCommandHandler)
+    container.register(CreateMessageCommandHandler)
+
+    def _init_mongo_client():
+        return AsyncIOMotorClient(config.mongo_uri, serverSelectionTimeoutMS=5000)
+
+    container.register(
+        AsyncIOMotorClient, factory=_init_mongo_client, scope=punq.Scope.singleton
+    )
+    client = container.resolve(AsyncIOMotorClient)
+
+    def _init_chat_repository() -> BaseChatRepository:
         if os.getenv("APP_ENV") == "test":
             return MemoryChatRepository()
         else:
-            config = container.resolve(DBConfig)
             return MongoChatRepository(
-                AsyncIOMotorClient(config.mongo_uri, serverSelectionTimeoutMS=5000),
+                client,
+                config.mongo_database,
+                config.mongo_collection,
+            )
+
+    def _init_message_repository() -> BaseMessageRepository:
+        if os.getenv("APP_ENV") == "test":
+            return MemoryChatRepository()
+        else:
+            return MongoMessageRepository(
+                client,
                 config.mongo_database,
                 config.mongo_collection,
             )
@@ -38,11 +62,20 @@ def _init_container() -> punq.Container:
         mediator.register_command_handlers(
             CreateChatCommand, [container.resolve(CreateChatCommandHandler)]
         )
+        mediator.register_command_handlers(
+            CreateMessageCommand, [container.resolve(CreateMessageCommandHandler)]
+        )
         return mediator
 
     container.register(
-        BaseChatRepository, factory=_init_repository, scope=punq.Scope.singleton
+        BaseChatRepository, factory=_init_chat_repository, scope=punq.Scope.singleton
     )
+    container.register(
+        BaseMessageRepository,
+        factory=_init_message_repository,
+        scope=punq.Scope.singleton,
+    )
+
     container.register(Mediator, factory=_init_mediator)
 
     return container

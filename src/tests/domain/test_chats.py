@@ -5,9 +5,11 @@ import pytest
 from domain.entities.chat import Chat
 from domain.entities.message import Message
 from domain.events.chat import ChatCreatedEvent, NewMessageReceivedEvent
-from domain.exceptions.chat import (EmptyTitleException,
-                                    TitleStrartsWithNoCapital,
-                                    TooLongTitleException)
+from domain.exceptions.chat import (
+    EmptyTitleException,
+    TitleStrartsWithNoCapital,
+    TooLongTitleException,
+)
 from domain.values.chat import Title
 from domain.values.message import Text
 
@@ -45,7 +47,7 @@ def test_create_chat_sucess():
 
 def test_add_message_to_chat():
     chat = Chat.create_chat(Title("Title"))
-    message = Message(Text("hello"))
+    message = Message(Text("hello"), chat.oid)
 
     chat.add_message(message)
 
@@ -55,7 +57,7 @@ def test_add_message_to_chat():
 
 def test_chat_message_events():
     chat = Chat.create_chat(Title("Title"))
-    message = Message(Text("hello"))
+    message = Message(Text("hello"), chat.oid)
 
     chat.add_message(message)
 

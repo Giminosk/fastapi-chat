@@ -7,3 +7,4 @@ from domain.values.message import Text
 @dataclass(eq=False)
 class Message(BaseEntity):
     text: Text
+    chat_oid: str
