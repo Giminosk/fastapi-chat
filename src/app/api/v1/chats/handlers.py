@@ -2,6 +2,7 @@ import punq
 from fastapi import Depends, HTTPException, status
 from fastapi.routing import APIRouter
 
+from app.api.v1.chats.filters import GetMessagesFilters
 from app.api.v1.chats.schemas import (
     CreateChatRequestSchema,
     CreateChatResponseSchema,
@@ -9,10 +10,11 @@ from app.api.v1.chats.schemas import (
     CreateMessageResponseSchema,
     GetChatSchema,
     GetMessageSchema,
+    GetMessagesResponseSchema,
 )
 from domain.exceptions.base import BaseAppException
 from logic.commands.chat import CreateChatCommand, GetChatCommand
-from logic.commands.message import CreateMessageCommand
+from logic.commands.message import CreateMessageCommand, GetMessagesByChatOidCommand
 from logic.mediator import Mediator
 from settings.init_container import init_container
 
@@ -40,7 +42,7 @@ async def create_chat_handler(
 
 
 @router.post(
-    "/{chat_oid}/messages",
+    "/{chat_oid}/messages/",
     response_model=CreateMessageResponseSchema,
     status_code=status.HTTP_201_CREATED,
 )
@@ -62,7 +64,11 @@ async def create_message_handler(
         raise HTTPException(status_code=400, detail=exception.message)
 
 
-@router.get("/{chat_oid}", response_model=GetChatSchema, status_code=status.HTTP_200_OK)
+@router.get(
+    "/{chat_oid}/",
+    response_model=GetChatSchema,
+    status_code=status.HTTP_200_OK,
+)
 async def get_chat_handler(
     chat_oid: str,
     container: punq.Container = Depends(init_container),
@@ -75,14 +81,38 @@ async def get_chat_handler(
             chat_oid=chat.oid,
             title=chat.title.as_generic_type(),
             created_at=chat.created_at,
-            messages=[
+        )
+    except BaseAppException as exception:
+        raise HTTPException(status_code=400, detail=exception.message)
+
+
+@router.get(
+    "/{chat_oid}/messages/",
+    response_model=GetMessagesResponseSchema,
+    status_code=status.HTTP_200_OK,
+)
+async def get_messages_by_chat_oid_handler(
+    chat_oid: str,
+    filters: GetMessagesFilters = Depends(),
+    container: punq.Container = Depends(init_container),
+):
+    mediator = container.resolve(Mediator)
+    command = GetMessagesByChatOidCommand(chat_oid, filters.as_infra_filter())
+
+    try:
+        (messages, count), *_ = await mediator.execute([command])
+        return GetMessagesResponseSchema(
+            count=count,
+            offset=filters.offset,
+            limit=filters.limit,
+            results=[
                 GetMessageSchema(
                     message_oid=message.oid,
                     text=message.text.as_generic_type(),
                     created_at=message.created_at,
-                    chat_oid=chat.oid,
+                    chat_oid=message.chat_oid,
                 )
-                for message in chat.messages
+                for message in messages
             ],
         )
     except BaseAppException as exception:

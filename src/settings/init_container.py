@@ -10,7 +10,12 @@ from logic.commands.chat import (
     GetChatCommand,
     GetChatCommandHandler,
 )
-from logic.commands.message import CreateMessageCommand, CreateMessageCommandHandler
+from logic.commands.message import (
+    CreateMessageCommand,
+    CreateMessageCommandHandler,
+    GetMessagesByChatOidCommand,
+    GetMessagesByChatOidCommandHandler,
+)
 from logic.mediator import Mediator
 from repositories.base import BaseChatRepository, BaseMessageRepository
 from repositories.memory import MemoryChatRepository
@@ -74,6 +79,7 @@ def _init_container() -> punq.Container:
     container.register(CreateChatCommandHandler)
     container.register(CreateMessageCommandHandler)
     container.register(GetChatCommandHandler)
+    container.register(GetMessagesByChatOidCommandHandler)
 
     # * Mediator
     def _init_mediator() -> Mediator:
@@ -86,6 +92,10 @@ def _init_container() -> punq.Container:
         )
         mediator.register_command_handlers(
             GetChatCommand, [container.resolve(GetChatCommandHandler)]
+        )
+        mediator.register_command_handlers(
+            GetMessagesByChatOidCommand,
+            [container.resolve(GetMessagesByChatOidCommandHandler)],
         )
         return mediator
 
