@@ -5,9 +5,11 @@ import pytest
 from domain.entities.chat import Chat
 from domain.entities.message import Message
 from domain.events.chat import ChatCreatedEvent, NewMessageReceivedEvent
-from domain.exceptions.chat import (EmptyTitleException,
-                                    TitleStrartsWithNoCapital,
-                                    TooLongTitleException)
+from domain.exceptions.chat import (
+    EmptyTitleException,
+    TitleStrartsWithNoCapital,
+    TooLongTitleException,
+)
 from domain.values.chat import Title
 from domain.values.message import Text
 

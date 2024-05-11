@@ -3,8 +3,10 @@ from dataclasses import dataclass
 from domain.entities.chat import Chat
 from domain.values.chat import Title
 from logic.commands.base import BaseCommand, BaseCommandHandler
-from logic.exceptions.chat import (ChatNotFoundException,
-                                   ChatWithTitleAlreadyExistsException)
+from logic.exceptions.chat import (
+    ChatNotFoundException,
+    ChatWithTitleAlreadyExistsException,
+)
 from repositories.base import BaseChatRepository
 
 

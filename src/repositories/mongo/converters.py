@@ -26,7 +26,6 @@ def converte_chat2json(chat: Chat) -> dict:
     return {
         "oid": chat.oid,
         "title": chat.title.as_generic_type(),
-        "messages": [converte_message2json(message) for message in chat.messages],
         "created_at": chat.created_at,
     }
 
@@ -36,5 +35,4 @@ def converte_json2chat(chat: dict) -> Chat:
         oid=chat["oid"],
         title=Title(value=chat["title"]),
         created_at=chat["created_at"],
-        messages=[converte_json2message(message) for message in chat["messages"]],
     )

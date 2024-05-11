@@ -3,8 +3,7 @@ from datetime import datetime
 import pytest
 
 from domain.entities.message import Message
-from domain.exceptions.message import (EmptyMessageException,
-                                       TooLongMessageException)
+from domain.exceptions.message import EmptyMessageException, TooLongMessageException
 from domain.values.message import Text
 
 

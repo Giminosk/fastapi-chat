@@ -33,4 +33,3 @@ class GetChatSchema(BaseModel):
     chat_oid: str
     title: str
     created_at: datetime.datetime
-    messages: list[GetMessageSchema]

@@ -2,11 +2,14 @@ import punq
 from fastapi import Depends, HTTPException, status
 from fastapi.routing import APIRouter
 
-from app.api.v1.chats.schemas import (CreateChatRequestSchema,
-                                      CreateChatResponseSchema,
-                                      CreateMessageRequestSchema,
-                                      CreateMessageResponseSchema,
-                                      GetChatSchema, GetMessageSchema)
+from app.api.v1.chats.schemas import (
+    CreateChatRequestSchema,
+    CreateChatResponseSchema,
+    CreateMessageRequestSchema,
+    CreateMessageResponseSchema,
+    GetChatSchema,
+    GetMessageSchema,
+)
 from domain.exceptions.base import BaseAppException
 from logic.commands.chat import CreateChatCommand, GetChatCommand
 from logic.commands.message import CreateMessageCommand

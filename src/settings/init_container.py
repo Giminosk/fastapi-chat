@@ -4,10 +4,13 @@ from functools import lru_cache
 import punq
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from logic.commands.chat import (CreateChatCommand, CreateChatCommandHandler,
-                                 GetChatCommand, GetChatCommandHandler)
-from logic.commands.message import (CreateMessageCommand,
-                                    CreateMessageCommandHandler)
+from logic.commands.chat import (
+    CreateChatCommand,
+    CreateChatCommandHandler,
+    GetChatCommand,
+    GetChatCommandHandler,
+)
+from logic.commands.message import CreateMessageCommand, CreateMessageCommandHandler
 from logic.mediator import Mediator
 from repositories.base import BaseChatRepository, BaseMessageRepository
 from repositories.memory import MemoryChatRepository
@@ -45,7 +48,7 @@ def _init_container() -> punq.Container:
             return MongoChatRepository(
                 client,
                 config.mongo_database,
-                config.mongo_collection,
+                config.mongo_chat_collection,
             )
 
     def _init_message_repository() -> BaseMessageRepository:
@@ -55,7 +58,7 @@ def _init_container() -> punq.Container:
             return MongoMessageRepository(
                 client,
                 config.mongo_database,
-                config.mongo_collection,
+                config.mongo_message_collection,
             )
 
     container.register(
