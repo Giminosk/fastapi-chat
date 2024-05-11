@@ -6,6 +6,15 @@ jobs:
   test:
     name: Run Ruff and Pytest
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: ${{ secrets.PYTHONPATH }}
+      APP_ENV: ${{ secrets.APP_ENV }}
+      API_PORT: ${{ secrets.API_PORT }}
+      MONGO_EXPRESS_PORT: ${{ secrets.MONGO_EXPRESS_PORT }}
+      MONGO_PORT: ${{ secrets.MONGO_PORT }}
+      MONGO_URI: ${{ secrets.MONGO_URI }}
+      MONGO_ADMIN_USERNAME: ${{ secrets.MONGO_ADMIN_USERNAME }}
+      MONGO_ADMIN_PASSWORD: ${{ secrets.MONGO_ADMIN_PASSWORD }}
 
     steps:
       - name: Check out code
