@@ -5,6 +5,7 @@ ENV = --env-file .env
 APP_YAML = docker_compose/app.yaml
 DB_YAML = docker_compose/db.yaml
 ALL_YAML = docker_compose/all.yaml
+BROKER_YAML = docker_compose/kafka.yaml
 
 .PHONY: app-up
 app-up:
@@ -16,11 +17,19 @@ app-down:
 
 .PHONY: db-up
 db-up:
-	${DC} -f ${APP_YAML} ${ENV} up
+	${DC} -f ${DB_YAML} ${ENV} up
 
 .PHONY: db-down
 db-down:
-	${DC} -f ${APP_YAML} down
+	${DC} -f ${DB_YAML} down
+
+.PHONY: broker-up
+broker-up:
+	${DC} -f ${BROKER_YAML} ${ENV} up
+
+.PHONY: broker-down
+broker-down:
+	${DC} -f ${BROKER_YAML} down
 
 
 .PHONY: all-up
