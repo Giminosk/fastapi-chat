@@ -16,7 +16,7 @@ from logic.commands.message import (
     GetMessagesByChatOidCommand,
     GetMessagesByChatOidCommandHandler,
 )
-from logic.mediator import Mediator
+from logic.mediator.mediator import Mediator
 from repositories.base import BaseChatRepository, BaseMessageRepository
 from repositories.memory import MemoryChatRepository
 from repositories.mongo.chat import MongoChatRepository

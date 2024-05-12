@@ -2,7 +2,7 @@ import pytest
 
 from logic.commands.chat import CreateChatCommand
 from logic.exceptions.chat import ChatWithTitleAlreadyExistsException
-from logic.mediator import Mediator
+from logic.mediator.mediator import Mediator
 from repositories.base import BaseChatRepository
 
 

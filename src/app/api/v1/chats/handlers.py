@@ -15,8 +15,8 @@ from app.api.v1.chats.schemas import (
 from domain.exceptions.base import BaseAppException
 from logic.commands.chat import CreateChatCommand, GetChatCommand
 from logic.commands.message import CreateMessageCommand, GetMessagesByChatOidCommand
-from logic.mediator import Mediator
-from settings.init_container import init_container
+from logic.init_container import init_container
+from logic.mediator.mediator import Mediator
 
 router = APIRouter(tags=["Chat"])
 
