@@ -84,18 +84,33 @@ def _init_container() -> punq.Container:
     # * Mediator
     def _init_mediator() -> Mediator:
         mediator = Mediator()
+
+        create_chat_command_handler = CreateChatCommandHandler(
+            _mediator=mediator, chat_repository=container.resolve(BaseChatRepository)
+        )
+        create_message_command_handler = CreateMessageCommandHandler(
+            _mediator=mediator,
+            chat_repository=container.resolve(BaseChatRepository),
+            message_repository=container.resolve(BaseMessageRepository),
+        )
+        get_chat_command_handler = GetChatCommandHandler(
+            _mediator=mediator, chat_repository=container.resolve(BaseChatRepository)
+        )
+        get_messages_by_chat_oid_command_handler = GetMessagesByChatOidCommandHandler(
+            _mediator=mediator,
+            message_repository=container.resolve(BaseMessageRepository),
+        )
+
         mediator.register_command_handlers(
-            CreateChatCommand, [container.resolve(CreateChatCommandHandler)]
+            CreateChatCommand, [create_chat_command_handler]
         )
         mediator.register_command_handlers(
-            CreateMessageCommand, [container.resolve(CreateMessageCommandHandler)]
+            CreateMessageCommand, [create_message_command_handler]
         )
-        mediator.register_command_handlers(
-            GetChatCommand, [container.resolve(GetChatCommandHandler)]
-        )
+        mediator.register_command_handlers(GetChatCommand, [get_chat_command_handler])
         mediator.register_command_handlers(
             GetMessagesByChatOidCommand,
-            [container.resolve(GetMessagesByChatOidCommandHandler)],
+            [get_messages_by_chat_oid_command_handler],
         )
         return mediator
 
