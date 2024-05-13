@@ -14,7 +14,7 @@ services:
   mongo-express:
     image: mongo-express
     container_name: mongo-express
-    restart: always
+    # restart: always
     ports:
       - "${MONGO_EXPRESS_PORT}:8081"
     environment:
