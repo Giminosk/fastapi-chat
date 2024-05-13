@@ -11,3 +11,7 @@ class DBConfig(BaseSettings):
     mongo_message_collection: str = Field(
         default="message_collection", alias="MONGO_MESSAGE_COLLECTION"
     )
+
+    kafka_uri: str = Field(alias="KAFKA_URI")
+    new_chat_created_event_topic: str = Field(default="new_chats_topic")
+    new_message_recived_event_topic: str = Field(default="new_messages_topic")

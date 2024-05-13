@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 
 from domain.entities.base import BaseEntity
 from domain.entities.message import Message
-from domain.events.chat import ChatCreatedEvent, NewMessageReceivedEvent
+from domain.events.chat import NewChatCreatedEvent, NewMessageReceivedEvent
 from domain.values.chat import Title
 
 
@@ -29,7 +29,7 @@ class Chat(BaseEntity):
     def create_chat(cls, title: Title, messages: list[Message] = None) -> "Chat":
         chat = cls(title=title)
         chat.add_event(
-            ChatCreatedEvent(
+            NewChatCreatedEvent(
                 chat_oid=chat.oid,
                 title=title.as_generic_type(),
             ),
