@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 import uvicorn
 from fastapi import FastAPI
 
@@ -6,6 +8,7 @@ from logic.init_container import init_container
 from message_brokers.base import BaseMessageBroker
 
 
+@asynccontextmanager
 async def lifespan(app: FastAPI):
     container = init_container()
     broker = container.resolve(BaseMessageBroker)

@@ -94,6 +94,8 @@ services:
     depends_on:
       - mongodb
       - kafka
+      - kafka-ui
+      - mongo-express
 
 volumes:
   mongo_volume:

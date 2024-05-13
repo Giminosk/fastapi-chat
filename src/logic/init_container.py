@@ -6,7 +6,7 @@ import punq
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from domain.events.chat import NewChatCreatedEvent
+from domain.events.chat import NewChatCreatedEvent, NewMessageReceivedEvent
 from logic.commands.chat import (
     CreateChatCommand,
     CreateChatCommandHandler,
@@ -20,6 +20,7 @@ from logic.commands.message import (
     GetMessagesByChatOidCommandHandler,
 )
 from logic.events.chat import NewChatCreatedEventHandler
+from logic.events.message import NewMessageReceivedEventHandler
 from logic.mediator.mediator import Mediator
 from message_brokers.base import BaseMessageBroker
 from message_brokers.kafka.kafka import KafkaMessageBroker
@@ -106,6 +107,7 @@ def _init_container() -> punq.Container:
 
     # * Event Handlers
     container.register(NewChatCreatedEventHandler)
+    container.register(NewMessageReceivedEventHandler)
 
     # * Mediator
     def _init_mediator() -> Mediator:
@@ -133,6 +135,10 @@ def _init_container() -> punq.Container:
             message_broker=container.resolve(BaseMessageBroker),
             topic=config.new_chat_created_event_topic,
         )
+        new_message_recieved_even_handler = NewMessageReceivedEventHandler(
+            message_broker=container.resolve(BaseMessageBroker),
+            topic=config.new_message_recived_event_topic,
+        )
 
         # * register up handlers in mediator
         mediator.register_command_handlers(
@@ -149,6 +155,10 @@ def _init_container() -> punq.Container:
         mediator.register_event_handlers(
             NewChatCreatedEvent, [new_chat_created_event_handler]
         )
+        mediator.register_event_handlers(
+            NewMessageReceivedEvent, [new_message_recieved_even_handler]
+        )
+
         return mediator
 
     container.register(Mediator, factory=_init_mediator)
