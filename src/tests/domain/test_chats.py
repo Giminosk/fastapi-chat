@@ -4,7 +4,7 @@ import pytest
 
 from domain.entities.chat import Chat
 from domain.entities.message import Message
-from domain.events.chat import ChatCreatedEvent, NewMessageReceivedEvent
+from domain.events.chat import NewChatCreatedEvent, NewMessageReceivedEvent
 from domain.exceptions.chat import (
     EmptyTitleException,
     TitleStrartsWithNoCapital,
@@ -67,7 +67,7 @@ def test_chat_message_events():
     assert len(events) == 2
 
     first = events[0]
-    assert isinstance(first, ChatCreatedEvent)
+    assert isinstance(first, NewChatCreatedEvent)
     assert first.chat_oid == chat.oid and first.title == chat.title.as_generic_type()
 
     second = events[1]

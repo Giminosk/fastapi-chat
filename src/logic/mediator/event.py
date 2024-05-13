@@ -4,18 +4,18 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field
 
 from domain.events.base import BaseEvent
-from logic.events.base import ER, ET, EventHandler
+from logic.events.base import ER, ET, BaseEventHandler
 
 
 @dataclass(eq=False)
 class EventMediator(ABC):
-    events_map: dict[ET : list[EventHandler]] = field(
+    events_map: dict[ET : list[BaseEventHandler]] = field(
         default_factory=lambda: defaultdict(list)
     )
 
     @abstractmethod
     def register_event_handlers(
-        self, event_type: ET, handlers: Iterable[EventHandler]
+        self, event_type: ET, handlers: Iterable[BaseEventHandler]
     ) -> None:
         pass
 

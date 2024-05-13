@@ -1,9 +1,12 @@
 import os
+import uuid
 from functools import lru_cache
 
 import punq
+from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from motor.motor_asyncio import AsyncIOMotorClient
 
+from domain.events.chat import NewChatCreatedEvent
 from logic.commands.chat import (
     CreateChatCommand,
     CreateChatCommandHandler,
@@ -16,7 +19,10 @@ from logic.commands.message import (
     GetMessagesByChatOidCommand,
     GetMessagesByChatOidCommandHandler,
 )
+from logic.events.chat import NewChatCreatedEventHandler
 from logic.mediator.mediator import Mediator
+from message_brokers.base import BaseMessageBroker
+from message_brokers.kafka.kafka import KafkaMessageBroker
 from repositories.base import BaseChatRepository, BaseMessageRepository
 from repositories.memory import MemoryChatRepository
 from repositories.mongo.chat import MongoChatRepository
@@ -34,9 +40,9 @@ def _init_container() -> punq.Container:
 
     # * Config
     container.register(DBConfig, factory=lambda: DBConfig(), scope=punq.Scope.singleton)
-    config = container.resolve(DBConfig)
+    config: DBConfig = container.resolve(DBConfig)
 
-    # * Client
+    # * Mongo Client
     def _init_mongo_client():
         return AsyncIOMotorClient(config.mongo_uri, serverSelectionTimeoutMS=5000)
 
@@ -75,16 +81,37 @@ def _init_container() -> punq.Container:
         scope=punq.Scope.singleton,
     )
 
-    # * Handlers
+    # * Message Broker
+    def _init_message_broker() -> BaseMessageBroker:
+        return KafkaMessageBroker(
+            producer=AIOKafkaProducer(
+                bootstrap_servers=config.kafka_uri,
+            ),
+            consumer=AIOKafkaConsumer(
+                bootstrap_servers=config.kafka_uri,
+                group_id=f"chats-{uuid.uuid4()}",
+                metadata_max_age_ms=30000,
+            ),
+        )
+
+    container.register(
+        BaseMessageBroker, factory=_init_message_broker, scope=punq.Scope.singleton
+    )
+
+    # * Command Handlers
     container.register(CreateChatCommandHandler)
     container.register(CreateMessageCommandHandler)
     container.register(GetChatCommandHandler)
     container.register(GetMessagesByChatOidCommandHandler)
 
+    # * Event Handlers
+    container.register(NewChatCreatedEventHandler)
+
     # * Mediator
     def _init_mediator() -> Mediator:
         mediator = Mediator()
 
+        # * mediator command handlers
         create_chat_command_handler = CreateChatCommandHandler(
             _mediator=mediator, chat_repository=container.resolve(BaseChatRepository)
         )
@@ -101,6 +128,13 @@ def _init_container() -> punq.Container:
             message_repository=container.resolve(BaseMessageRepository),
         )
 
+        # * mediator event handlers
+        new_chat_created_event_handler = NewChatCreatedEventHandler(
+            message_broker=container.resolve(BaseMessageBroker),
+            topic=config.new_chat_created_event_topic,
+        )
+
+        # * register up handlers in mediator
         mediator.register_command_handlers(
             CreateChatCommand, [create_chat_command_handler]
         )
@@ -111,6 +145,9 @@ def _init_container() -> punq.Container:
         mediator.register_command_handlers(
             GetMessagesByChatOidCommand,
             [get_messages_by_chat_oid_command_handler],
+        )
+        mediator.register_event_handlers(
+            NewChatCreatedEvent, [new_chat_created_event_handler]
         )
         return mediator
 

@@ -27,6 +27,8 @@ class CreateChatCommandHandler(BaseCommandHandler[CreateChatCommand, Chat]):
 
         await self.chat_repository.save_chat(chat)
 
+        await self._mediator.publish(chat.pull_events())
+
         return chat
 
 

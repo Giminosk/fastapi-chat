@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Iterable
 
+from domain.entities.chat import Chat
 from domain.entities.message import Message
 from domain.values.message import Text
 from logic.commands.base import BaseCommand, BaseCommandHandler
@@ -21,13 +22,16 @@ class CreateMessageCommandHandler(BaseCommandHandler[CreateMessageCommand, Messa
     chat_repository: BaseChatRepository
 
     async def handle(self, command: CreateMessageCommand) -> Message:
-        chat = await self.chat_repository.get_chat_by_oid(command.chat_oid)
+        chat: Chat = await self.chat_repository.get_chat_by_oid(command.chat_oid)
         if not chat:
             raise ChatNotFoundException(command.chat_oid)
 
         message = Message(Text(command.text), command.chat_oid)
 
         await self.message_repository.save_message(command.chat_oid, message)
+
+        chat.add_message(message)
+        await self._mediator.publish(chat.pull_events())
 
         return message
 
