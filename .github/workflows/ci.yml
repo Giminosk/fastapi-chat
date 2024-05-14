@@ -15,6 +15,10 @@ jobs:
       MONGO_URI: ${{ secrets.MONGO_URI }}
       MONGO_ADMIN_USERNAME: ${{ secrets.MONGO_ADMIN_USERNAME }}
       MONGO_ADMIN_PASSWORD: ${{ secrets.MONGO_ADMIN_PASSWORD }}
+      ZOOKEEPER_PORT: ${{ secrets.ZOOKEEPER_PORT }}
+      KAFKA_PORT: ${{ secrets.KAFKA_PORT }}
+      KAFKA_UI_PORT: ${{ secrets.KAFKA_UI_PORT }}
+      KAFKA_URI: ${{ secrets.KAFKA_URI }}
 
     steps:
       - name: Check out code
@@ -31,16 +35,16 @@ jobs:
           echo "${HOME}/.local/bin" >> $GITHUB_PATH
           poetry --version
 
-      # - name: Cache Poetry packages
-      #   id: poetry-cache
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: |
-      #       ~/.cache/pypoetry
-      #       ~/.virtualenvs
-      #     key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-poetry
+      - name: Cache Poetry packages
+        id: poetry-cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pypoetry
+            ~/.virtualenvs
+          key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry
 
       - name: Install Dependencies
         run: |
