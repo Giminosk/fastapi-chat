@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 
 from domain.entities.chat import Chat
 from domain.entities.message import Message
-from repositories.base import BaseChatRepository
+from infrastructure.repositories.base import BaseChatRepository
 
 
 @dataclass

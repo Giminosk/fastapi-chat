@@ -1,9 +1,9 @@
 import pytest
 
+from infrastructure.repositories.base import BaseChatRepository
 from logic.commands.chat import CreateChatCommand
 from logic.exceptions.chat import ChatWithTitleAlreadyExistsException
 from logic.mediator.mediator import Mediator
-from repositories.base import BaseChatRepository
 
 
 @pytest.mark.asyncio

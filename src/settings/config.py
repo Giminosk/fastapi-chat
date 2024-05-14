@@ -2,7 +2,7 @@ from pydantic import Field
 from pydantic_settings import BaseSettings
 
 
-class DBConfig(BaseSettings):
+class Config(BaseSettings):
     mongo_uri: str = Field(alias="MONGO_URI")
     mongo_database: str = Field(default="chat_database", alias="MONGO_DATABASE")
     mongo_chat_collection: str = Field(

@@ -2,7 +2,7 @@ import datetime
 
 from pydantic import BaseModel
 
-from app.api.v1.schemas import BaseQueryResponseSchema
+from api.v1.schemas import BaseQueryResponseSchema
 
 
 class CreateChatRequestSchema(BaseModel):

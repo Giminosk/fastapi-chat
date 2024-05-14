@@ -5,7 +5,7 @@ services:
     image: mongo
     container_name: mongodb
     ports:
-      - '${MONGO_PORT}:27017'
+      - ${MONGO_PORT}:27017
     volumes:
       - mongo_volume:/data/db
     networks:
@@ -16,7 +16,7 @@ services:
     container_name: mongo-express
     # restart: always
     ports:
-      - "${MONGO_EXPRESS_PORT}:8081"
+      - ${MONGO_EXPRESS_PORT}:8081
     environment:
       ME_CONFIG_MONGODB_SERVER: mongodb
       ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_ADMIN_USERNAME}

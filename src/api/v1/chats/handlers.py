@@ -2,8 +2,8 @@ import punq
 from fastapi import Depends, HTTPException, status
 from fastapi.routing import APIRouter
 
-from app.api.v1.chats.filters import GetMessagesFilters
-from app.api.v1.chats.schemas import (
+from api.v1.chats.filters import GetMessagesFilters
+from api.v1.chats.schemas import (
     CreateChatRequestSchema,
     CreateChatResponseSchema,
     CreateMessageRequestSchema,
@@ -31,11 +31,15 @@ async def create_chat_handler(
     container: punq.Container = Depends(init_container),
 ) -> CreateChatResponseSchema:
     mediator = container.resolve(Mediator)
-    command = CreateChatCommand(title=schema.title)
+    command = CreateChatCommand(
+        title=schema.title,
+    )
+
     try:
         chat, *_ = await mediator.execute([command])
         return CreateChatResponseSchema(
-            chat_oid=chat.oid, title=chat.title.as_generic_type()
+            chat_oid=chat.oid,
+            title=chat.title.as_generic_type(),
         )
     except BaseAppException as exception:
         raise HTTPException(status_code=400, detail=exception.message)
@@ -53,6 +57,7 @@ async def create_message_handler(
 ):
     mediator = container.resolve(Mediator)
     command = CreateMessageCommand(chat_oid=chat_oid, text=schema.text)
+
     try:
         message, *_ = await mediator.execute([command])
         return CreateMessageResponseSchema(
@@ -75,6 +80,7 @@ async def get_chat_handler(
 ):
     mediator = container.resolve(Mediator)
     command = GetChatCommand(chat_oid=chat_oid)
+
     try:
         chat, *_ = await mediator.execute([command])
         return GetChatSchema(
@@ -97,7 +103,9 @@ async def get_messages_by_chat_oid_handler(
     container: punq.Container = Depends(init_container),
 ):
     mediator = container.resolve(Mediator)
-    command = GetMessagesByChatOidCommand(chat_oid, filters.as_infra_filter())
+    command = GetMessagesByChatOidCommand(
+        chat_oid=chat_oid, filters=filters.as_infra_filter()
+    )
 
     try:
         (messages, count), *_ = await mediator.execute([command])

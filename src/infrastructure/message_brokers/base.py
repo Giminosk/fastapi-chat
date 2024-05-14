@@ -4,7 +4,24 @@ from typing import Any
 
 
 @dataclass
+class BaseProducer(ABC):
+    @abstractmethod
+    async def send(self, **kwargs) -> None:
+        pass
+
+
+@dataclass
+class BaseConsumer(ABC):
+    @abstractmethod
+    async def subscribe(self, **kwargs) -> Any:
+        pass
+
+
+@dataclass
 class BaseMessageBroker(ABC):
+    producer: BaseProducer
+    consumer: BaseConsumer
+
     @abstractmethod
     async def start(self) -> None:
         pass

@@ -15,6 +15,10 @@ class BaseChatRepository(ABC):
     async def get_chat_by_title(self, title: str) -> Chat | None:
         pass
 
+    @abstractmethod
+    async def get_chat_by_oid(self, oid: str) -> Chat | None:
+        pass
+
     async def check_chat_exists_by_title(self, title: str) -> bool:
         return bool(await self.get_chat_by_title(title))
 

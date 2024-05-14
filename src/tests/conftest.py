@@ -3,10 +3,10 @@ import os
 import punq
 from pytest import fixture
 
+from infrastructure.repositories.base import BaseChatRepository
+from infrastructure.repositories.memory import MemoryChatRepository
 from logic.init_container import _init_container
 from logic.mediator.mediator import Mediator
-from repositories.base import BaseChatRepository
-from repositories.memory import MemoryChatRepository
 
 os.environ["APP_ENV"] = "test"
 

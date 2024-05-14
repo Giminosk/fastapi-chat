@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 
-import repositories.mongo.converters as converter
+import infrastructure.repositories.mongo.converters as converter
 from domain.entities.chat import Chat
-from repositories.base import BaseChatRepository
-from repositories.mongo.base import BaseMongoRepository
+from infrastructure.repositories.base import BaseChatRepository
+from infrastructure.repositories.mongo.base import BaseMongoRepository
 
 
 @dataclass

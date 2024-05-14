@@ -7,6 +7,12 @@ from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from domain.events.chat import NewChatCreatedEvent, NewMessageReceivedEvent
+from infrastructure.message_brokers.base import BaseMessageBroker
+from infrastructure.message_brokers.kafka.kafka import KafkaMessageBroker
+from infrastructure.repositories.base import BaseChatRepository, BaseMessageRepository
+from infrastructure.repositories.memory import MemoryChatRepository
+from infrastructure.repositories.mongo.chat import MongoChatRepository
+from infrastructure.repositories.mongo.message import MongoMessageRepository
 from logic.commands.chat import (
     CreateChatCommand,
     CreateChatCommandHandler,
@@ -22,13 +28,7 @@ from logic.commands.message import (
 from logic.events.chat import NewChatCreatedEventHandler
 from logic.events.message import NewMessageReceivedEventHandler
 from logic.mediator.mediator import Mediator
-from message_brokers.base import BaseMessageBroker
-from message_brokers.kafka.kafka import KafkaMessageBroker
-from repositories.base import BaseChatRepository, BaseMessageRepository
-from repositories.memory import MemoryChatRepository
-from repositories.mongo.chat import MongoChatRepository
-from repositories.mongo.message import MongoMessageRepository
-from settings.dbconfig import DBConfig
+from settings.config import Config
 
 
 @lru_cache(1)
@@ -40,8 +40,8 @@ def _init_container() -> punq.Container:
     container = punq.Container()
 
     # * Config
-    container.register(DBConfig, factory=lambda: DBConfig(), scope=punq.Scope.singleton)
-    config: DBConfig = container.resolve(DBConfig)
+    container.register(Config, factory=lambda: Config(), scope=punq.Scope.singleton)
+    config: Config = container.resolve(Config)
 
     # * Mongo Client
     def _init_mongo_client():
@@ -58,9 +58,9 @@ def _init_container() -> punq.Container:
             return MemoryChatRepository()
         else:
             return MongoChatRepository(
-                client,
-                config.mongo_database,
-                config.mongo_chat_collection,
+                client=client,
+                database=config.mongo_database,
+                collection_name=config.mongo_chat_collection,
             )
 
     def _init_message_repository() -> BaseMessageRepository:
@@ -68,13 +68,15 @@ def _init_container() -> punq.Container:
             return MemoryChatRepository()
         else:
             return MongoMessageRepository(
-                client,
-                config.mongo_database,
-                config.mongo_message_collection,
+                client=client,
+                database=config.mongo_database,
+                collection_name=config.mongo_message_collection,
             )
 
     container.register(
-        BaseChatRepository, factory=_init_chat_repository, scope=punq.Scope.singleton
+        BaseChatRepository,
+        factory=_init_chat_repository,
+        scope=punq.Scope.singleton,
     )
     container.register(
         BaseMessageRepository,
@@ -96,7 +98,9 @@ def _init_container() -> punq.Container:
         )
 
     container.register(
-        BaseMessageBroker, factory=_init_message_broker, scope=punq.Scope.singleton
+        BaseMessageBroker,
+        factory=_init_message_broker,
+        scope=punq.Scope.singleton,
     )
 
     # * Command Handlers
@@ -115,7 +119,8 @@ def _init_container() -> punq.Container:
 
         # * mediator command handlers
         create_chat_command_handler = CreateChatCommandHandler(
-            _mediator=mediator, chat_repository=container.resolve(BaseChatRepository)
+            _mediator=mediator,
+            chat_repository=container.resolve(BaseChatRepository),
         )
         create_message_command_handler = CreateMessageCommandHandler(
             _mediator=mediator,
@@ -123,7 +128,8 @@ def _init_container() -> punq.Container:
             message_repository=container.resolve(BaseMessageRepository),
         )
         get_chat_command_handler = GetChatCommandHandler(
-            _mediator=mediator, chat_repository=container.resolve(BaseChatRepository)
+            _mediator=mediator,
+            chat_repository=container.resolve(BaseChatRepository),
         )
         get_messages_by_chat_oid_command_handler = GetMessagesByChatOidCommandHandler(
             _mediator=mediator,
@@ -142,21 +148,28 @@ def _init_container() -> punq.Container:
 
         # * register up handlers in mediator
         mediator.register_command_handlers(
-            CreateChatCommand, [create_chat_command_handler]
+            command_type=CreateChatCommand,
+            handlers=[create_chat_command_handler],
         )
         mediator.register_command_handlers(
-            CreateMessageCommand, [create_message_command_handler]
+            command_type=CreateMessageCommand,
+            handlers=[create_message_command_handler],
         )
-        mediator.register_command_handlers(GetChatCommand, [get_chat_command_handler])
         mediator.register_command_handlers(
-            GetMessagesByChatOidCommand,
-            [get_messages_by_chat_oid_command_handler],
+            command_type=GetChatCommand,
+            handlers=[get_chat_command_handler],
+        )
+        mediator.register_command_handlers(
+            command_type=GetMessagesByChatOidCommand,
+            handlers=[get_messages_by_chat_oid_command_handler],
         )
         mediator.register_event_handlers(
-            NewChatCreatedEvent, [new_chat_created_event_handler]
+            event_type=NewChatCreatedEvent,
+            handlers=[new_chat_created_event_handler],
         )
         mediator.register_event_handlers(
-            NewMessageReceivedEvent, [new_message_recieved_even_handler]
+            event_type=NewMessageReceivedEvent,
+            handlers=[new_message_recieved_even_handler],
         )
 
         return mediator
