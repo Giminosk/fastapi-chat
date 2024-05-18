@@ -21,13 +21,13 @@ class KafkaMessageBroker(BaseMessageBroker):
         await self.consumer.stop()
 
     async def start_consuming(self, topic: str) -> AsyncIterator[dict]:
-        await self.consumer.subscribe(topics=[topic])
+        self.consumer.subscribe(topics=[topic])
 
         async for msg in self.consumer:
             yield orjson.loads(msg.value)
 
-    async def stop_consuming(self, topic: str) -> None:
-        await self.consumer.unsubscribe(topics=[topic])
+    async def stop_consuming(self) -> None:
+        await self.consumer.unsubscribe()
 
     async def send_message(self, topic: str, key: bytes, value: bytes) -> None:
         await self.producer.send(topic=topic, key=key, value=value)
