@@ -7,6 +7,10 @@ from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from domain.events.chat import NewChatCreatedEvent, NewMessageReceivedEvent
+from infrastructure.managers.connection_manager import (
+    BaseConnectionManager,
+    ConnectionManager,
+)
 from infrastructure.message_brokers.base import BaseMessageBroker
 from infrastructure.message_brokers.kafka.kafka import KafkaMessageBroker
 from infrastructure.repositories.base import BaseChatRepository, BaseMessageRepository
@@ -40,7 +44,11 @@ def _init_container() -> punq.Container:
     container = punq.Container()
 
     # * Config
-    container.register(Config, factory=lambda: Config(), scope=punq.Scope.singleton)
+    container.register(
+        Config,
+        factory=lambda: Config(),
+        scope=punq.Scope.singleton,
+    )
     config: Config = container.resolve(Config)
 
     # * Mongo Client
@@ -48,7 +56,9 @@ def _init_container() -> punq.Container:
         return AsyncIOMotorClient(config.mongo_uri, serverSelectionTimeoutMS=5000)
 
     container.register(
-        AsyncIOMotorClient, factory=_init_mongo_client, scope=punq.Scope.singleton
+        AsyncIOMotorClient,
+        factory=_init_mongo_client,
+        scope=punq.Scope.singleton,
     )
     client = container.resolve(AsyncIOMotorClient)
 
@@ -102,6 +112,14 @@ def _init_container() -> punq.Container:
         factory=_init_message_broker,
         scope=punq.Scope.singleton,
     )
+
+    # * Connection Manager
+    container.register(
+        BaseConnectionManager,
+        factory=lambda: ConnectionManager(),
+        scope=punq.Scope.singleton,
+    )
+    connection_manager = container.resolve(BaseConnectionManager)
 
     # * Command Handlers
     container.register(CreateChatCommandHandler)
