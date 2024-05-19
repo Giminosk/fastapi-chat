@@ -3,6 +3,7 @@ from dataclasses import dataclass
 import infrastructure.repositories.mongo.converters as converter
 from domain.entities.chat import Chat
 from infrastructure.repositories.base import BaseChatRepository
+from infrastructure.repositories.filters.chat import GetChatsFilters
 from infrastructure.repositories.mongo.base import BaseMongoRepository
 
 
@@ -28,3 +29,16 @@ class MongoChatRepository(BaseMongoRepository, BaseChatRepository):
     async def delete_chat_by_title(self, title: str) -> None:
         query_filter = {"title": title}
         await self._collection.delete_one(query_filter)
+
+    async def get_all_chats(self, filters: GetChatsFilters) -> list[Chat]:
+        query_filter = {}
+        count = await self._collection.count_documents(query_filter)
+        skip = count - filters.limit - filters.offset
+        cursor = (
+            self._collection.find(query_filter)
+            .skip(skip if skip > 0 else 0)
+            .limit(filters.limit)
+        )
+        chats = [converter.converte_json2chat(chat) async for chat in cursor]
+
+        return chats, count

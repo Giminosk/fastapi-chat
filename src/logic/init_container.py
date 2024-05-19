@@ -21,6 +21,8 @@ from infrastructure.websockets.connection_manager import (
 from logic.commands.chat import (
     CreateChatCommand,
     CreateChatCommandHandler,
+    GetAllChatsCommand,
+    GetAllChatsCommandHandler,
     GetChatCommand,
     GetChatCommandHandler,
 )
@@ -130,6 +132,7 @@ def _init_container() -> punq.Container:
     container.register(CreateMessageCommandHandler)
     container.register(GetChatCommandHandler)
     container.register(GetMessagesByChatOidCommandHandler)
+    container.register(GetAllChatsCommandHandler)
 
     # * Event Handlers
     container.register(NewChatCreatedEventHandler)
@@ -157,6 +160,10 @@ def _init_container() -> punq.Container:
         get_messages_by_chat_oid_command_handler = GetMessagesByChatOidCommandHandler(
             _mediator=mediator,
             message_repository=container.resolve(BaseMessageRepository),
+        )
+        get_all_chats_command_handler = GetAllChatsCommandHandler(
+            _mediator=mediator,
+            chat_repository=container.resolve(BaseChatRepository),
         )
 
         # * mediator event handlers
@@ -206,6 +213,10 @@ def _init_container() -> punq.Container:
         mediator.register_event_handlers(
             event_type=NewMessageReceivedFromBrokerEvent,
             handlers=[new_message_received_from_broker_event_handler],
+        )
+        mediator.register_command_handlers(
+            command_type=GetAllChatsCommand,
+            handlers=[get_all_chats_command_handler],
         )
 
         return mediator

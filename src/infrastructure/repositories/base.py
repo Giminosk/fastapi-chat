@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 from domain.entities.chat import Chat
 from domain.entities.message import Message
+from infrastructure.repositories.filters.chat import GetChatsFilters
 
 
 @dataclass
@@ -24,6 +25,10 @@ class BaseChatRepository(ABC):
 
     @abstractmethod
     async def delete_chat_by_title(self, title: str) -> None:
+        pass
+
+    @abstractmethod
+    async def get_all_chats(self, filters: GetChatsFilters) -> list[Chat]:
         pass
 
 

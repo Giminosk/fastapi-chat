@@ -39,3 +39,7 @@ class GetChatSchema(BaseModel):
 
 class GetMessagesResponseSchema(BaseQueryResponseSchema[list[GetMessageSchema]]):
     pass
+
+
+class GetChatsResponseSchema(BaseQueryResponseSchema[list[GetChatSchema]]):
+    pass

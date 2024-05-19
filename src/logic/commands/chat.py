@@ -1,8 +1,10 @@
 from dataclasses import dataclass
+from typing import Iterable
 
 from domain.entities.chat import Chat
 from domain.values.chat import Title
 from infrastructure.repositories.base import BaseChatRepository
+from infrastructure.repositories.filters.chat import GetChatsFilters
 from logic.commands.base import BaseCommand, BaseCommandHandler
 from logic.exceptions.chat import (
     ChatNotFoundException,
@@ -46,3 +48,19 @@ class GetChatCommandHandler(BaseCommandHandler[GetChatCommand, Chat]):
         if not chat:
             raise ChatNotFoundException(oid=command.chat_oid)
         return chat
+
+
+@dataclass
+class GetAllChatsCommand(BaseCommand):
+    filters: GetChatsFilters
+
+
+@dataclass
+class GetAllChatsCommandHandler(
+    BaseCommandHandler[GetAllChatsCommand, tuple[Iterable[Chat], int]]
+):
+    chat_repository: BaseChatRepository
+
+    async def handle(self, command: GetAllChatsCommand) -> tuple[list[Chat], int]:
+        chats, count = await self.chat_repository.get_all_chats(filters=command.filters)
+        return chats, count
