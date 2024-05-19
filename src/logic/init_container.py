@@ -3,6 +3,7 @@ import uuid
 from functools import lru_cache
 
 import punq
+from aiojobs import Scheduler
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from motor.motor_asyncio import AsyncIOMotorClient
 
@@ -206,6 +207,16 @@ def _init_container() -> punq.Container:
 
         return mediator
 
-    container.register(Mediator, factory=_init_mediator)
+    container.register(
+        Mediator,
+        factory=_init_mediator,
+    )
+
+    # * Scheduler
+    container.register(
+        Scheduler,
+        factory=lambda: Scheduler(),
+        scope=punq.Scope.singleton,
+    )
 
     return container

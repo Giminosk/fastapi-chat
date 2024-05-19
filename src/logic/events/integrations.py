@@ -13,7 +13,7 @@ class IntergrationEvent(BaseEvent):
 class NewMessageReceivedFromBrokerEvent(IntergrationEvent):
     message_oid: str
     chat_oid: str
-    text: str
+    message_text: str
 
 
 @dataclass
@@ -21,5 +21,5 @@ class NewMessageReceivedFromBrokerEventHandler(BaseEventHandler):
     async def handle(self, event: NewMessageReceivedFromBrokerEvent) -> None:
         return await self.connection_manager.send_all(
             key=event.chat_oid,
-            message=event.text.encode(),
+            message=event.message_text.encode(),
         )

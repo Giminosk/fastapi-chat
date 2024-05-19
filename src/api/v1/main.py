@@ -1,23 +1,9 @@
-from contextlib import asynccontextmanager
-
 import uvicorn
 from fastapi import FastAPI
 
 from api.v1.chats.handlers import router as chat_router
+from api.v1.lifespan import lifespan
 from api.v1.websockets.chats import router as chat_ws_router
-from infrastructure.message_brokers.base import BaseMessageBroker
-from logic.init_container import init_container
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    container = init_container()
-    broker = container.resolve(BaseMessageBroker)
-    await broker.start()
-
-    yield
-
-    await broker.stop()
 
 
 def create_app() -> FastAPI:
