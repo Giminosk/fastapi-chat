@@ -8,16 +8,16 @@ from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from domain.events.chat import NewChatCreatedEvent, NewMessageReceivedEvent
-from infrastructure.managers.connection_manager import (
-    BaseConnectionManager,
-    ConnectionManager,
-)
 from infrastructure.message_brokers.base import BaseMessageBroker
 from infrastructure.message_brokers.kafka.kafka import KafkaMessageBroker
 from infrastructure.repositories.base import BaseChatRepository, BaseMessageRepository
 from infrastructure.repositories.memory import MemoryChatRepository
 from infrastructure.repositories.mongo.chat import MongoChatRepository
 from infrastructure.repositories.mongo.message import MongoMessageRepository
+from infrastructure.websockets.connection_manager import (
+    BaseConnectionManager,
+    ConnectionManager,
+)
 from logic.commands.chat import (
     CreateChatCommand,
     CreateChatCommandHandler,
@@ -31,7 +31,10 @@ from logic.commands.message import (
     GetMessagesByChatOidCommandHandler,
 )
 from logic.events.chat import NewChatCreatedEventHandler
-from logic.events.integrations import NewMessageReceivedFromBrokerEventHandler
+from logic.events.integrations import (
+    NewMessageReceivedFromBrokerEvent,
+    NewMessageReceivedFromBrokerEventHandler,
+)
 from logic.events.message import NewMessageReceivedEventHandler
 from logic.mediator.mediator import Mediator
 from settings.config import Config
@@ -201,7 +204,7 @@ def _init_container() -> punq.Container:
             handlers=[new_message_recieved_even_handler],
         )
         mediator.register_event_handlers(
-            event_type=NewMessageReceivedEvent,
+            event_type=NewMessageReceivedFromBrokerEvent,
             handlers=[new_message_received_from_broker_event_handler],
         )
 

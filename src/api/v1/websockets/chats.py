@@ -1,12 +1,9 @@
-import orjson
 import punq
 from fastapi import Depends, WebSocket, WebSocketDisconnect
 from fastapi.routing import APIRouter
 
-from infrastructure.managers.connection_manager import BaseConnectionManager
-from infrastructure.message_brokers.base import BaseMessageBroker
+from infrastructure.websockets.connection_manager import BaseConnectionManager
 from logic.init_container import init_container
-from settings.config import Config
 
 router = APIRouter(tags=["Chat"])
 
@@ -21,17 +18,10 @@ async def websocket_endpoint(
     await connection_manager.accept_connection(websocket=websocket, key=chat_oid)
     await websocket.send_text("You are now connected!")
 
-    message_broker = container.resolve(BaseMessageBroker)
-    config = container.resolve(Config)
-
     try:
         while True:
-            async for msg in message_broker.start_consuming(
-                config.new_message_recived_event_topic
-            ):
-                await connection_manager.send_all(
-                    key=msg.chat_oid, message=orjson.dumps(msg)
-                )
+            # listening to remain connection opened
+            await websocket.receive_text()
 
     except WebSocketDisconnect:
         await connection_manager.remove_connection(websocket=websocket, key=chat_oid)

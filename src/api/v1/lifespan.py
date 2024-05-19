@@ -30,12 +30,12 @@ async def consume_messages_in_background():
     container = init_container()
     message_broker = container.resolve(BaseMessageBroker)
     config = container.resolve(Config)
-    mediator = container.resolve(Mediator)
+    mediator: Mediator = container.resolve(Mediator)
 
     async for msg in message_broker.start_consuming(
         config.new_message_recived_event_topic
     ):
-        await mediator.execute(
+        await mediator.publish(
             [
                 NewMessageReceivedFromBrokerEvent(
                     chat_oid=msg["chat_oid"],

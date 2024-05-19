@@ -11,6 +11,6 @@ class NewMessageReceivedEventHandler(BaseEventHandler[NewMessageReceivedEvent, N
     async def handle(self, event: NewMessageReceivedEvent) -> None:
         return await self.message_broker.send_message(
             topic=self.topic,
-            key=event.eid.encode(),
+            key=event.chat_oid.encode(),
             value=orjson.dumps(event),
         )

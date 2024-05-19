@@ -32,7 +32,7 @@ class ConnectionManager(BaseConnectionManager):
         self.connections_map[key].append(websocket)
 
     async def remove_connection(self, websocket: WebSocket, key: str) -> None:
-        websocket.close()
+        # await websocket.close()
         self.connections_map[key].remove(websocket)
 
     async def send_all(self, key: str, message: bytes) -> None:

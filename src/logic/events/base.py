@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from typing import Any, Generic, TypeVar
 
 from domain.events.base import BaseEvent
-from infrastructure.managers.connection_manager import ConnectionManager
 from infrastructure.message_brokers.base import BaseMessageBroker
+from infrastructure.websockets.connection_manager import ConnectionManager
 
 ET = TypeVar("ET", bound=BaseEvent)  # Event type
 ER = TypeVar("ER", bound=Any)  # Event resutl
