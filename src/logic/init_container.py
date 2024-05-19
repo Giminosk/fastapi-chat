@@ -30,6 +30,7 @@ from logic.commands.message import (
     GetMessagesByChatOidCommandHandler,
 )
 from logic.events.chat import NewChatCreatedEventHandler
+from logic.events.integrations import NewMessageReceivedFromBrokerEventHandler
 from logic.events.message import NewMessageReceivedEventHandler
 from logic.mediator.mediator import Mediator
 from settings.config import Config
@@ -94,7 +95,7 @@ def _init_container() -> punq.Container:
         scope=punq.Scope.singleton,
     )
 
-    # * Message Broker
+    # * Message Broker (Kafka)
     def _init_message_broker() -> BaseMessageBroker:
         return KafkaMessageBroker(
             producer=AIOKafkaProducer(
@@ -119,7 +120,6 @@ def _init_container() -> punq.Container:
         factory=lambda: ConnectionManager(),
         scope=punq.Scope.singleton,
     )
-    connection_manager = container.resolve(BaseConnectionManager)
 
     # * Command Handlers
     container.register(CreateChatCommandHandler)
@@ -130,6 +130,7 @@ def _init_container() -> punq.Container:
     # * Event Handlers
     container.register(NewChatCreatedEventHandler)
     container.register(NewMessageReceivedEventHandler)
+    container.register(NewMessageReceivedFromBrokerEventHandler)
 
     # * Mediator
     def _init_mediator() -> Mediator:
@@ -157,11 +158,20 @@ def _init_container() -> punq.Container:
         # * mediator event handlers
         new_chat_created_event_handler = NewChatCreatedEventHandler(
             message_broker=container.resolve(BaseMessageBroker),
+            connection_manager=container.resolve(BaseConnectionManager),
             topic=config.new_chat_created_event_topic,
         )
         new_message_recieved_even_handler = NewMessageReceivedEventHandler(
             message_broker=container.resolve(BaseMessageBroker),
+            connection_manager=container.resolve(BaseConnectionManager),
             topic=config.new_message_recived_event_topic,
+        )
+        new_message_received_from_broker_event_handler = (
+            NewMessageReceivedFromBrokerEventHandler(
+                message_broker=container.resolve(BaseMessageBroker),
+                connection_manager=container.resolve(BaseConnectionManager),
+                topic=config.new_message_recived_event_topic,
+            )
         )
 
         # * register up handlers in mediator
@@ -188,6 +198,10 @@ def _init_container() -> punq.Container:
         mediator.register_event_handlers(
             event_type=NewMessageReceivedEvent,
             handlers=[new_message_recieved_even_handler],
+        )
+        mediator.register_event_handlers(
+            event_type=NewMessageReceivedEvent,
+            handlers=[new_message_received_from_broker_event_handler],
         )
 
         return mediator
