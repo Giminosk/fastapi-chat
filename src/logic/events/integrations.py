@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import ClassVar
 
 import orjson
 
@@ -13,6 +14,8 @@ class IntergrationEvent(BaseEvent):
 
 @dataclass
 class NewMessageReceivedFromBrokerEvent(BaseEvent):
+    event_title: ClassVar[str] = "New Message Received From Broker"
+
     message_oid: str
     chat_oid: str
     message_text: str
