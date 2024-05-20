@@ -3,12 +3,11 @@ version: "3.9"
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
-    container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
-      - ${ZOOKEEPER_PORT}:2181
+      - ${ZOOKEEPER_PORT:?}:2181
     networks:
       - backend
 
@@ -18,7 +17,7 @@ services:
     depends_on:
       - zookeeper
     ports:
-      - ${KAFKA_PORT}:29092
+      - ${KAFKA_PORT:?}:29092
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -40,7 +39,7 @@ services:
     depends_on:
       - kafka
     ports:
-      - ${KAFKA_UI_PORT}:8080
+      - ${KAFKA_UI_PORT:?}:8080
     # restart: always
     environment:
       - KAFKA_CLUSTERS_0_NAME=local

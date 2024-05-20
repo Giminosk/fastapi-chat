@@ -2,10 +2,9 @@ version: '3.9'
 
 services:
   mongodb:
-    container_name: mongodb
     image: mongo
     ports:
-      - ${MONGO_PORT}:27017
+      - ${MONGO_PORT:?}:27017
     volumes:
       - mongo_volume:/data/db
     networks:
@@ -18,15 +17,14 @@ services:
 
   mongo-express:
     image: mongo-express
-    container_name: mongo-express
     # restart: always
     ports:
-      - ${MONGO_EXPRESS_PORT}:8081
+      - ${MONGO_EXPRESS_PORT:?}:8081
     environment:
       ME_CONFIG_MONGODB_SERVER: mongodb
-      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_ADMIN_USERNAME}
-      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_ADMIN_PASSWORD}
-      ME_CONFIG_MONGODB_URL: ${MONGO_URI}
+      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_ADMIN_USERNAME:?}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_ADMIN_PASSWORD:?}
+      ME_CONFIG_MONGODB_URL: ${MONGO_URI:?}
     depends_on:
       - mongodb
     networks:
@@ -34,22 +32,20 @@ services:
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
-    container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
-      - ${ZOOKEEPER_PORT}:2181
+      - ${ZOOKEEPER_PORT:?}:2181
     networks:
       - backend
 
   kafka:
     image: confluentinc/cp-kafka:latest
-    container_name: kafka
     depends_on:
       - zookeeper
     ports:
-      - ${KAFKA_PORT}:29092
+      - ${KAFKA_PORT:?}:29092
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -67,11 +63,10 @@ services:
 
   kafka-ui:
     image: provectuslabs/kafka-ui
-    container_name: kafka-ui
     depends_on:
       - kafka
     ports:
-      - ${KAFKA_UI_PORT}:8080
+      - ${KAFKA_UI_PORT:?}:8080
     # restart: always
     environment:
       - KAFKA_CLUSTERS_0_NAME=local
@@ -84,9 +79,8 @@ services:
     build:
       context: ..
       dockerfile: Dockerfile
-    container_name: main-app
     ports:
-      - ${API_PORT}:8000
+      - ${API_PORT:?}:8000
     command: "uvicorn --factory api.v1.main:create_app --reload --host 0.0.0.0 --port 8000"
     env_file:
       - ../.env
