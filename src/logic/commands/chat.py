@@ -47,6 +47,7 @@ class GetChatCommandHandler(BaseCommandHandler[GetChatCommand, Chat]):
         chat = await self.chat_repository.get_chat_by_oid(oid=command.chat_oid)
         if not chat:
             raise ChatNotFoundException(oid=command.chat_oid)
+
         return chat
 
 
@@ -64,3 +65,25 @@ class GetAllChatsCommandHandler(
     async def handle(self, command: GetAllChatsCommand) -> tuple[list[Chat], int]:
         chats, count = await self.chat_repository.get_all_chats(filters=command.filters)
         return chats, count
+
+
+@dataclass
+class DeleteChatCommand(BaseCommand):
+    chat_oid: str
+
+
+@dataclass
+class DeleteChatCommandHandler(BaseCommandHandler[DeleteChatCommand, Chat]):
+    chat_repository: BaseChatRepository
+
+    async def handle(self, command: DeleteChatCommand) -> Chat:
+        chat = await self.chat_repository.get_chat_by_oid(oid=command.chat_oid)
+        if not chat:
+            raise ChatNotFoundException(oid=command.chat_oid)
+
+        await self.chat_repository.delete_chat_by_oid(oid=command.chat_oid)
+
+        chat.delete_chat()
+        await self._mediator.publish(chat.pull_events())
+
+        return chat

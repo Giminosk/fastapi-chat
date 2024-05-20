@@ -8,13 +8,19 @@ from api.v1.chats.schemas import (
     CreateChatResponseSchema,
     CreateMessageRequestSchema,
     CreateMessageResponseSchema,
+    DeleteChatResponseSchema,
     GetChatSchema,
     GetChatsResponseSchema,
     GetMessageSchema,
     GetMessagesResponseSchema,
 )
 from domain.exceptions.base import BaseAppException
-from logic.commands.chat import CreateChatCommand, GetAllChatsCommand, GetChatCommand
+from logic.commands.chat import (
+    CreateChatCommand,
+    DeleteChatCommand,
+    GetAllChatsCommand,
+    GetChatCommand,
+)
 from logic.commands.message import CreateMessageCommand, GetMessagesByChatOidCommand
 from logic.init_container import init_container
 from logic.mediator.mediator import Mediator
@@ -154,6 +160,29 @@ async def get_all_chats_handler(
                 )
                 for chat in chats
             ],
+        )
+    except BaseAppException as exception:
+        raise HTTPException(status_code=400, detail=exception.message)
+
+
+@router.delete(
+    "/{chat_oid}/",
+    response_model=DeleteChatResponseSchema,
+    status_code=status.HTTP_200_OK,
+)
+async def delete_chat_handler(
+    chat_oid: str,
+    container: punq.Container = Depends(init_container),
+):
+    mediator = container.resolve(Mediator)
+    command = DeleteChatCommand(chat_oid=chat_oid)
+
+    try:
+        chat, *_ = await mediator.execute([command])
+        return DeleteChatResponseSchema(
+            chat_oid=chat.oid,
+            title=chat.title.as_generic_type(),
+            created_at=chat.created_at,
         )
     except BaseAppException as exception:
         raise HTTPException(status_code=400, detail=exception.message)

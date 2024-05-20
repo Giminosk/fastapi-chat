@@ -15,3 +15,4 @@ class Config(BaseSettings):
     kafka_uri: str = Field(alias="KAFKA_URI")
     new_chat_created_event_topic: str = Field(default="new_chats_topic")
     new_message_recived_event_topic: str = Field(default="new_messages_topic")
+    chat_deleted_event_topic: str = Field(default="deleted_chats_topic")

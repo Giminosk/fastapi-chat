@@ -1,6 +1,6 @@
 import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from api.v1.schemas import BaseQueryResponseSchema
 
@@ -35,6 +35,10 @@ class GetChatSchema(BaseModel):
     chat_oid: str
     title: str
     created_at: datetime.datetime
+
+
+class DeleteChatResponseSchema(GetChatSchema):
+    is_deleted: bool = Field(default=True)
 
 
 class GetMessagesResponseSchema(BaseQueryResponseSchema[list[GetMessageSchema]]):

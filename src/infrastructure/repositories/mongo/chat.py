@@ -42,3 +42,7 @@ class MongoChatRepository(BaseMongoRepository, BaseChatRepository):
         chats = [converter.converte_json2chat(chat) async for chat in cursor]
 
         return chats, count
+
+    async def delete_chat_by_oid(self, oid: str) -> None:
+        query_filter = {"oid": oid}
+        await self._collection.delete_one(query_filter)
