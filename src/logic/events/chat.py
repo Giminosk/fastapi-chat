@@ -19,6 +19,7 @@ class NewChatCreatedEventHandler(BaseEventHandler[NewChatCreatedEvent, None]):
 @dataclass
 class ChatDeletedEventHandler(BaseEventHandler[ChatDeletedEvent, None]):
     async def handle(self, event: ChatDeletedEvent) -> None:
+        await self.connection_manager.disconnect_all(key=event.chat_oid)
         return await self.message_broker.send_message(
             topic=self.topic,
             key=event.chat_oid.encode(),
