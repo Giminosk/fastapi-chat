@@ -14,6 +14,7 @@ from domain.events.chat import (
 )
 from infrastructure.message_brokers.base import BaseMessageBroker
 from infrastructure.message_brokers.kafka.kafka import KafkaMessageBroker
+from infrastructure.message_brokers.mock import MockMessageBroker
 from infrastructure.repositories.base import BaseChatRepository, BaseMessageRepository
 from infrastructure.repositories.memory import MemoryChatRepository
 from infrastructure.repositories.mongo.chat import MongoChatRepository
@@ -109,16 +110,19 @@ def _init_container() -> punq.Container:
 
     # * Message Broker (Kafka)
     def _init_message_broker() -> BaseMessageBroker:
-        return KafkaMessageBroker(
-            producer=AIOKafkaProducer(
-                bootstrap_servers=config.kafka_uri,
-            ),
-            consumer=AIOKafkaConsumer(
-                bootstrap_servers=config.kafka_uri,
-                group_id=f"chats-{uuid.uuid4()}",
-                metadata_max_age_ms=30000,
-            ),
-        )
+        if os.getenv("APP_ENV") == "test":
+            return MockMessageBroker(producer=None, consumer=None)
+        else:
+            return KafkaMessageBroker(
+                producer=AIOKafkaProducer(
+                    bootstrap_servers=config.kafka_uri,
+                ),
+                consumer=AIOKafkaConsumer(
+                    bootstrap_servers=config.kafka_uri,
+                    group_id=f"chats-{uuid.uuid4()}",
+                    metadata_max_age_ms=30000,
+                ),
+            )
 
     container.register(
         BaseMessageBroker,

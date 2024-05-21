@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from domain.entities.chat import Chat
 from domain.entities.message import Message
 from infrastructure.repositories.base import BaseChatRepository
+from infrastructure.repositories.filters.chat import GetChatsFilters
 
 
 @dataclass
@@ -34,3 +35,6 @@ class MemoryChatRepository(BaseChatRepository):
             if self.chats[i].oid == chat_oid:
                 self.chats[i].add_message(message)
                 break
+
+    async def get_all_chats(self, filters: GetChatsFilters) -> list[Chat]:
+        return self.chats[filters.offset : filters.limit]
